@@ -1,6 +1,7 @@
 'use strict';
 const root=new URL(self.registration.scope).pathname;
 const prefix=root.slice(0,-1);
+const siteTitle='NEW LIFE PORTAL';
 const backend='https://testsiteportal.kyosuke-0101.chatgpt.site/_pages/file';
 const loginFiles=new Set(['gate.js','sw.js','index.html','404.html','.nojekyll']);
 const db=new Promise((resolve,reject)=>{
@@ -28,7 +29,10 @@ function gate(navigation) {
   return navigation?fetch(root+'index.html',{cache:'no-store'}):new Response(null,{status:401});
 }
 function adapt(text,file,type) {
-  if(type.includes('text/html'))return text.replace(/\b(href|src|action)="\/(?!\/)/g,(_,attr)=>attr+'="'+root)
+  if(type.includes('text/html'))return text
+    .replace(/<title>[^<]*<\/title>/,title=>title.replace('testsiteportal',siteTitle))
+    .replace(/(<span class="project-name">)[^<]*(<\/span>)/,(_,open,close)=>open+siteTitle+close)
+    .replace(/\b(href|src|action)="\/(?!\/)/g,(_,attr)=>attr+'="'+root)
     .replace("location.replace('/en/","location.replace('"+root+"en/");
   if(type.includes('text/css'))return text.replace(/(url\(["']?)\/assets\//g,'$1'+root+'assets/');
   if(file==='/site.js')text=text.replace("const base = en ? '/en' : '';","const base = "+JSON.stringify(prefix)+" + (en ? '/en' : '');");
